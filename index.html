@@ -1,814 +1,675 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Collezione Puntine</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f7f7f7;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-            padding: 2rem;
-        }
-        .card {
-            background-color: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            width: 100%;
-            max-width: 500px;
-        }
-        .header {
-            color: #4f46e5;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-        .btn-primary {
-            background-color: #4f46e5;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: background-color 0.3s;
-            display: block;
-            width: 100%;
-            text-align: center;
-        }
-        .btn-primary:hover {
-            background-color: #4338ca;
-        }
-        .btn-secondary {
-            background-color: #e5e7eb;
-            color: #4f46e5;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: background-color 0.3s;
-        }
-        .btn-secondary:hover {
-            background-color: #d1d5db;
-        }
-        .list-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.75rem 1rem;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        .badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        .badge-admin {
-            background-color: #fef3c7;
-            color: #d97706;
-        }
-        .badge-user {
-            background-color: #e0f2f1;
-            color: #0d9488;
-        }
-        .badge-pending {
-            background-color: #fee2e2;
-            color: #ef4444;
-        }
-        .badge-confirmed {
-            background-color: #d1fae5;
-            color: #059669;
-        }
-        @media (min-width: 640px) {
-            body {
-                align-items: center;
-            }
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collezione Puntine</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f7f7;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .card {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 500px;
+        }
+        .header {
+            color: #4f46e5;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .btn-primary {
+            background-color: #4f46e5;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            display: block;
+            width: 100%;
+            text-align: center;
+        }
+        .btn-primary:hover {
+            background-color: #4338ca;
+        }
+        .btn-secondary {
+            background-color: #e5e7eb;
+            color: #4f46e5;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        .btn-secondary:hover {
+            background-color: #d1d5db;
+        }
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-admin {
+            background-color: #fef3c7;
+            color: #d97706;
+        }
+        .badge-user {
+            background-color: #e0f2f1;
+            color: #0d9488;
+        }
+        .badge-pending {
+            background-color: #fee2e2;
+            color: #ef4444;
+        }
+        .badge-confirmed {
+            background-color: #d1fae5;
+            color: #059669;
+        }
+        @media (min-width: 640px) {
+            body {
+                align-items: center;
+            }
+        }
+    </style>
 </head>
 <body>
 
-    <div id="app-container" class="card">
-        <h1 class="text-3xl header">Collezione Puntine</h1>
-        <div id="loader" class="text-center text-gray-500 py-8">Connessione a Firebase...</div>
-        <div id="content" class="hidden"></div>
-    </div>
-
-    <!-- *************************************************************** -->
-    <!-- SDKs Firebase (USO MODULI MODERN) -->
-    <!-- *************************************************************** -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, query, where, orderBy, limit, addDoc, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-
-        setLogLevel('Debug'); // Mostra i log di Firestore nella console per il debug
-        
-        // CONFIGURAZIONE FIREBASE: Definita direttamente qui per evitare problemi di scope
-        const firebaseConfig = {
-            apiKey: "AIzaSyA6DwPiwQoRCxEC-lmlYJrchpLqzBEYB5w",
-            authDomain: "puntine-collector.firebaseapp.com",
-            projectId: "puntine-collector",
-            storageBucket: "puntine-collector.firebasestorage.app",
-            messagingSenderId: "709491476433",
-            appId: "1:709491476433:web:cfcfc6d94bc2a5ef41c2f0"
-        };
-        
-        // FIX: Accesso sicuro alle variabili globali fornite dall'ambiente tramite window
-        // La variabile __app_id viene fornita dall'ambiente.
-        const appId = typeof window.__app_id !== 'undefined' ? window.__app_id : 'thumbtack-collector-v1';
-        
-        // --- GLOBAL STATE & FIREBASE SETUP ---
-        // Utilizza firebaseConfig direttamente
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-        
-        let currentUserId = null;
-        let currentUserData = null;
-        let isAdmin = false;
-
-        const ADMIN_USERNAME = "florianopu19";
-        const ADMIN_PASSWORD = "1e2r3t";
-
-        const RANKS = [
-            'Non classificato',
-            'Socio anziano',
-            'Vice presidente',
-            'Presidente'
-        ];
-
-        // --- HELPER FUNCTIONS ---
-
-        const getRequestsCollection = () => collection(db, `artifacts/${appId}/public/data/thumbtack_requests`);
-        const getAdminUsersCollection = () => collection(db, `artifacts/${appId}/public/data/all_users_view`); 
-        
-        const showView = (html) => {
-            document.getElementById('content').innerHTML = html;
-        };
-        
-        const showLoader = (show) => {
-            document.getElementById('loader').classList.toggle('hidden', !show);
-            document.getElementById('content').classList.toggle('hidden', show);
-        };
-
-
-        // Simple modal implementation (to replace alert/confirm)
-        const showMessageBox = (title, message, type = 'info', confirmCallback = null) => {
-            let color = 'bg-blue-500';
-            if (type === 'success') color = 'bg-green-500';
-            if (type === 'error') color = 'bg-red-500';
-            if (type === 'alert') color = 'bg-yellow-500';
-
-            const container = document.getElementById('app-container');
-            const existingModal = document.getElementById('custom-modal');
-            if (existingModal) existingModal.remove();
-
-            const isConfirmation = confirmCallback !== null;
-            const modalHTML = `
-                <div id="custom-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                    <div class="card max-w-sm">
-                        <div class="flex items-center pb-3 border-b border-gray-200">
-                            <div class="h-2 w-2 ${color} rounded-full mr-3"></div>
-                            <h3 class="text-lg font-bold text-gray-900">${title}</h3>
-                        </div>
-                        <p class="py-4 text-gray-700">${message}</p>
-                        <div class="flex justify-end space-x-3">
-                            ${isConfirmation ? 
-                                `<button id="modal-cancel" class="btn-secondary px-4 py-2">Annulla</button>
-                                <button id="modal-confirm" class="${color.replace('bg-', 'bg-')} text-white px-4 py-2 rounded-lg font-semibold">Conferma</button>`
-                                : 
-                                `<button id="modal-ok" class="btn-primary px-4 py-2">OK</button>`
-                            }
-                        </div>
-                    </div>
-                </div>
-            `;
-            container.insertAdjacentHTML('afterend', modalHTML);
-
-            const modal = document.getElementById('custom-modal');
-            
-            const close = () => modal.remove();
-
-            if (isConfirmation) {
-                document.getElementById('modal-cancel').onclick = close;
-                document.getElementById('modal-confirm').onclick = () => {
-                    confirmCallback();
-                    close();
-                };
-            } else {
-                document.getElementById('modal-ok').onclick = close;
-            }
-        };
-
-
-        // --- AUTHENTICATION & INITIAL SETUP ---
-
-        const initializeAuth = async () => {
-            showLoader(true);
-            try {
-                // Esegui sempre il sign-in anonimo per ottenere un UID
-                await signInAnonymously(auth);
-            } catch (error) {
-                console.error("Errore nell'autenticazione iniziale:", error);
-                showMessageBox("Errore Critico", "Impossibile connettersi ai servizi di autenticazione Firebase. Controlla la tua configurazione e le regole di sicurezza.", "error");
-            }
-        };
-
-        const handleSignIn = async (username, password, email = '') => { 
-            showLoader(true); 
-
-            if (!username || !password) {
-                showMessageBox("Attenzione", "Inserisci username e password.", "alert");
-                showLoader(false);
-                return;
-            }
-            
-            const userRef = doc(getAdminUsersCollection(), username);
-            
-            try {
-                const userSnap = await getDoc(userRef);
-
-                let userData;
-
-                if (userSnap.exists()) {
-                    // 1. Login
-                    userData = userSnap.data();
-
-                    if (userData.password !== password) {
-                        showMessageBox("Errore di accesso", "Password errata per l'utente " + username + ".", "error");
-                        showLoader(false);
-                        return;
-                    }
-
-                    if (userData.authUid !== currentUserId) {
-                        await updateDoc(userRef, { authUid: currentUserId });
-                    }
-
-                } else {
-                    // 2. Registration
-                    const isNewAdmin = (username === ADMIN_USERNAME && password === ADMIN_PASSWORD);
-                    const initialRank = isNewAdmin ? 'Presidente' : 'Non classificato';
-                    const initialRole = isNewAdmin ? 'admin' : 'user';
-
-                    if (isNewAdmin) {
-                        showMessageBox("Accesso Admin", `Benvenuto Admin ${username}! Sei loggato come ${initialRank}.`, "success");
-                    } else {
-                        showMessageBox("Registrazione Riuscita", `Benvenuto ${username}! Sei stato registrato con il grado ${initialRank}.`, "success");
-                    }
-
-                    userData = {
-                        username: username,
-                        password: password, 
-                        email: email, 
-                        authUid: currentUserId,
-                        role: initialRole,
-                        rank: initialRank,
-                        totalThumbtacks: 0,
-                        isReported: false, 
-                        lastUpdate: new Date().toISOString()
-                    };
-
-                    await setDoc(userRef, userData);
-                }
-
-                // --- GESTIONE FLUSSO DOPO LOGIN/REGISTRAZIONE ---
-                currentUserData = userData;
-                isAdmin = currentUserData.role === 'admin';
-                
-                if (isAdmin && currentUserData.password === ADMIN_PASSWORD) {
-                    renderAdminPasswordChangePrompt();
-                    showLoader(false);
-                    return; 
-                }
-
-                startListeningForData();
-
-                if (isAdmin) {
-                    renderAdminDashboard();
-                } else {
-                    renderUserDashboard();
-                }
-
-            } catch (error) {
-                console.error("Errore durante il login/registrazione:", error);
-                // Aggiunto un controllo più specifico sull'errore di Firebase
-                let errorMessage = "Si è verificato un errore durante l'accesso. Controlla la console per i dettagli (es. Permessi Firestore).";
-                if (error.code && error.code.includes('permission-denied')) {
-                     errorMessage = "Errore: Permessi insufficienti (Permission Denied). Controlla le Regole di Sicurezza di Firestore.";
-                }
-                showMessageBox("Errore di Sistema", errorMessage, "error");
-            }
-            showLoader(false); 
-        };
-
-        const handleLogout = async () => {
-            try {
-                location.reload(); 
-            } catch (error) {
-                console.error("Logout failed:", error);
-            }
-        };
-
-        // --- UI MANAGEMENT ---
-        
-        const renderWelcomeScreen = () => {
-            const html = `
-                <p class="text-gray-600 text-center mb-6">Benvenuto nel sistema di collezione di puntine!</p>
-                <div id="auth-view">
-                    <!-- 🛠️ CORREZIONE: Inserito form per risolvere l'avviso console e abilitare il tasto Invio -->
-                    <form onsubmit="event.preventDefault(); window.handleLoginClick();"> 
-                        <div id="login-form">
-                            <input type="text" id="username" placeholder="Username" class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required />
-                            <input type="email" id="email" placeholder="Email (solo per la registrazione, facoltativa)" class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" />
-                            <input type="password" id="password" placeholder="Password" class="w-full p-3 mb-6 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required />
-                            <button type="submit" class="btn-primary mb-3">Accedi / Registrati</button>
-                            <p class="text-sm text-gray-500 text-center mt-4">
-                                Il tuo ID di sessione (per debug): <code class="text-xs break-words">${currentUserId || 'N/D'}</code>
-                            </p>
-                        </div>
-                    </form>
-                </div>
-            `;
-            showView(html);
-        };
-
-        const handleLoginClick = () => {
-            const username = document.getElementById('username').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value.trim();
-            handleSignIn(username, password, email);
-        };
-
-        const renderAdminPasswordChangePrompt = () => {
-            const html = `
-                <div class="bg-yellow-100 p-4 rounded-lg mb-6 border border-yellow-300">
-                    <h2 class="text-xl font-bold text-yellow-800 mb-2">⚠ SICUREZZA CRITICA ⚠</h2>
-                    <p class="text-yellow-700 mb-4">
-                        Stai utilizzando la password Admin predefinita. Per motivi di sicurezza, devi cambiarla per accedere alla Dashboard.
-                    </p>
-                    <input type="password" id="new_password" placeholder="Nuova Password (min 6 caratteri)" class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500" />
-                    <input type="password" id="confirm_password" placeholder="Conferma Nuova Password" class="w-full p-3 mb-6 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500" />
-                    <button onclick="window.handleAdminPasswordChange()" class="btn-primary bg-red-600 hover:bg-red-700">Cambia Password Admin</button>
-                </div>
-            `;
-            showView(html);
-        };
-
-        const handleAdminPasswordChange = async () => {
-            const newPassword = document.getElementById('new_password').value.trim();
-            const confirmPassword = document.getElementById('confirm_password').value.trim();
-            const adminUsername = currentUserData.username;
-
-            if (newPassword.length < 6) {
-                showMessageBox("Attenzione", "La nuova password deve contenere almeno 6 caratteri.", "alert");
-                return;
-            }
-            if (newPassword !== confirmPassword) {
-                showMessageBox("Attenzione", "Le password non corrispondono.", "alert");
-                return;
-            }
-            if (newPassword === ADMIN_PASSWORD) {
-                showMessageBox("Attenzione", "La nuova password non può essere uguale a quella predefinita.", "alert");
-                return;
-            }
-
-            showLoader(true);
-            try {
-                const userRef = doc(getAdminUsersCollection(), adminUsername);
-                await updateDoc(userRef, {
-                    password: newPassword,
-                    lastUpdate: new Date().toISOString()
-                });
-
-                currentUserData.password = newPassword; 
-
-                showMessageBox("Successo", "Password Admin aggiornata con successo! Accesso alla Dashboard.", "success", () => {
-                    startListeningForData();
-                    renderAdminDashboard();
-                });
-
-            } catch (error) {
-                console.error("Errore nel cambio password Admin:", error);
-                showMessageBox("Errore di Sistema", "Impossibile aggiornare la password. Controlla la console.", "error");
-            }
-            showLoader(false);
-        };
-
-
-        // --- USER DASHBOARD ---
-
-        const renderUserDashboard = () => {
-            const thumbtackRequests = window.thumbtackRequests || [];
-            
-            const userRequests = thumbtackRequests.filter(r => r.authUid === currentUserId);
-
-            const userPendingRequests = userRequests.filter(r => r.status === 'Pending');
-            const userHistoryRequests = userRequests
-                .filter(r => r.status !== 'Pending')
-                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-                .slice(0, 5); 
-
-            let pendingRequestsHTML = '';
-            if (userPendingRequests.length > 0) {
-                pendingRequestsHTML = `
-                    <h3 class="text-lg font-semibold mt-6 mb-3 text-red-600">Richieste in Sospeso</h3>
-                    <div class="border rounded-lg overflow-hidden">
-                    ${userPendingRequests.map(req => `
-                        <div class="list-item bg-red-50/50">
-                            <span>${req.quantity} puntine (${new Date(req.timestamp).toLocaleDateString()})</span>
-                            <span class="badge badge-pending">In attesa</span>
-                        </div>
-                    `).join('')}
-                    </div>
-                `;
-            }
-
-            let historyRequestsHTML = '';
-            if (userHistoryRequests.length > 0) {
-                historyRequestsHTML = `
-                    <h3 class="text-lg font-semibold mt-6 mb-3 text-gray-700">Storico Richieste Recenti (Ultimi ${userHistoryRequests.length})</h3>
-                    <div class="border rounded-lg overflow-hidden">
-                    ${userHistoryRequests.map((req, index) => {
-                        const isConfirmed = req.status === 'Confirmed';
-                        const badgeClass = isConfirmed ? 'badge-confirmed' : 'badge-pending';
-                        const badgeText = isConfirmed ? 'Accettata' : 'Rifiutata';
-                        const bgColor = isConfirmed ? 'bg-green-50/50' : 'bg-red-50/50';
-
-                        return `
-                            <div class="list-item ${bgColor}">
-                                <span>${req.quantity} puntine (${new Date(req.timestamp).toLocaleDateString()})</span>
-                                <span class="badge ${badgeClass}">${badgeText}</span>
-                            </div>
-                        `;
-                    }).join('')}
-                    </div>
-                `;
-            }
-
-
-            const html = `
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold text-gray-800">${currentUserData.username}</h2>
-                    <button onclick="window.handleLogout()" class="text-sm text-red-500 hover:text-red-700">Logout</button>
-                </div>
-
-                <div class="bg-indigo-50 p-4 rounded-lg mb-6 shadow-inner">
-                    <p class="text-indigo-700 text-sm">Il tuo Grado: <span class="font-bold">${currentUserData.rank}</span></p>
-                    <p class="text-indigo-700 text-sm mt-1">Puntine Totali: <span class="font-bold text-xl">${currentUserData.totalThumbtacks}</span></p>
-                    ${currentUserData.email ? `<p class="text-indigo-700 text-xs mt-1">Email: ${currentUserData.email}</p>` : ''}
-                </div>
-
-                <h3 class="text-lg font-semibold mb-3 text-gray-700">Invia Nuova Richiesta</h3>
-                <div class="p-4 border border-gray-200 rounded-lg">
-                    <label for="thumbtack_count" class="block text-sm font-medium text-gray-700 mb-2">Quante puntine hai collezionato?</label>
-                    <input type="number" id="thumbtack_count" min="1" value="1" class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" />
-                    <button onclick="window.submitThumbtackRequest()" class="btn-primary">Invia per Approvazione</button>
-                </div>
-                
-                ${pendingRequestsHTML}
-                ${historyRequestsHTML}
-            `;
-            showView(html);
-        };
-
-        const submitThumbtackRequest = async () => {
-            const countInput = document.getElementById('thumbtack_count');
-            const quantity = parseInt(countInput.value, 10);
-
-            if (isNaN(quantity) || quantity <= 0) {
-                showMessageBox("Attenzione", "Inserisci una quantità di puntine valida (maggiore di zero).", "alert");
-                return;
-            }
-
-            if (window.thumbtackRequests && window.thumbtackRequests.some(r => r.authUid === currentUserId && r.status === 'Pending')) {
-                showMessageBox("Attenzione", "Hai già una richiesta in sospeso. Attendi l'approvazione dell'Admin.", "alert");
-                return;
-            }
-
-            showLoader(true);
-            try {
-                await addDoc(getRequestsCollection(), {
-                    username: currentUserData.username,
-                    authUid: currentUserId,
-                    quantity: quantity,
-                    status: 'Pending',
-                    timestamp: new Date().toISOString()
-                });
-                countInput.value = '1';
-                showMessageBox("Richiesta Inviata", `Richiesta di ${quantity} puntine inviata con successo all'Admin!`, "success");
-            } catch (error) {
-                console.error("Errore nell'invio della richiesta:", error);
-                showMessageBox("Errore", "Impossibile inviare la richiesta. Controlla i permessi di scrittura.", "error");
-            }
-            showLoader(false);
-        };
-
-
-        // --- ADMIN DASHBOARD ---
-
-        const handleReportUser = async (username) => {
-            const user = window.allUsers.find(u => u.username === username);
-            if (!user) return;
-
-            const newReportStatus = !user.isReported;
-            
-            const actionText = newReportStatus ? 'segnalare' : 'rimuovere la segnalazione da';
-            const statusText = newReportStatus ? 'Segnalato' : 'Segnalazione rimossa';
-            const color = newReportStatus ? 'error' : 'success';
-
-            showMessageBox("Gestione Segnalazione", 
-                `Sei sicuro di voler ${actionText} l'utente **${username}**?`, 
-                color, 
-                async () => {
-                showLoader(true);
-                try {
-                    const userRef = doc(getAdminUsersCollection(), username);
-                    await updateDoc(userRef, { isReported: newReportStatus });
-                    
-                    showMessageBox("Successo", `Utente ${username}: ${statusText}.`, "success");
-                } catch (error) {
-                    console.error("Errore nella gestione della segnalazione:", error);
-                    showMessageBox("Errore", "Impossibile aggiornare lo stato di segnalazione.", "error");
-                }
-                showLoader(false);
-            });
-        };
-        window.handleReportUser = handleReportUser;
-
-
-        const renderAdminDashboard = () => {
-            const allUsers = window.allUsers || [];
-            const totalUsersCount = allUsers.length; 
-            const reportedUsersCount = allUsers.filter(u => u.isReported).length; 
-
-            const thumbtackRequests = (window.thumbtackRequests || []).filter(r => r.status === 'Pending');
-
-            const usersHtml = allUsers.map((user, index) => {
-                const currentRankIndex = RANKS.indexOf(user.rank);
-                const nextRankIndex = currentRankIndex < RANKS.length - 1 ? currentRankIndex + 1 : currentRankIndex;
-                const nextRankName = RANKS[nextRankIndex];
-                
-                const isReported = !!user.isReported; 
-                const reportButtonClass = isReported ? 'bg-gray-500 hover:bg-gray-600' : 'bg-red-500 hover:bg-red-600';
-                const reportButtonText = isReported ? 'Rimuovi Segnalazione' : 'Segnala Utente';
-                const reportBadgeHtml = isReported ? '<span class="badge bg-red-100 text-red-800 ml-2">SEGNALATO</span>' : '';
-
-
-                return `
-                    <div class="list-item ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}">
-                        <div class="flex-1 min-w-0 mr-4">
-                            <p class="font-semibold text-gray-900">${user.username} 
-                                ${user.username === ADMIN_USERNAME ? '<span class="badge badge-admin ml-2">ADMIN</span>' : ''}
-                                ${reportBadgeHtml} 
-                            </p>
-                            <p class="text-sm text-gray-500">Puntine: ${user.totalThumbtacks} - Grado: ${user.rank}</p>
-                        </div>
-                        
-                        <div class="flex items-center space-x-2">
-                            ${user.username !== ADMIN_USERNAME ? `
-                                <button onclick="window.handleReportUser('${user.username}')" 
-                                        class="${reportButtonClass} text-white text-xs font-semibold py-1 px-3 rounded-lg transition-colors">
-                                    ${reportButtonText}
-                                </button>
-                                
-                                <button onclick="window.handleRankChange('${user.username}')" 
-                                        class="text-xs font-semibold py-1 px-3 rounded-full text-white transition-opacity 
-                                        ${RANKS.indexOf(user.rank) < RANKS.length - 1 ? 'bg-indigo-500 hover:bg-indigo-600' : 'bg-green-500 opacity-70 cursor-default'}" 
-                                        ${currentRankIndex === RANKS.length - 1 ? 'disabled' : ''}>
-                                    ${currentRankIndex < RANKS.length - 1 ? `Promuovi a ${nextRankName}` : 'Grado Massimo'}
-                                </button>
-                            ` : ''}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            const requestsHtml = thumbtackRequests.length > 0 ? thumbtackRequests.map((req, index) => `
-                <div class="list-item ${index % 2 === 0 ? 'bg-red-50' : 'bg-white'}">
-                    <div class="flex-1 min-w-0 mr-4">
-                        <p class="font-semibold text-gray-900">${req.username} richiede ${req.quantity} puntine.</p>
-                        <p class="text-xs text-gray-500">${new Date(req.timestamp).toLocaleString()}</p>
-                    </div>
-                    <div class="flex space-x-2">
-                        <button onclick="window.handleRequestAction('${req.id}', 'Accept', ${req.quantity}, '${req.authUid}', '${req.username}')" 
-                                class="bg-green-500 hover:bg-green-600 text-white text-xs font-semibold py-1 px-3 rounded-lg">Accetta</button>
-                        <button onclick="window.handleRequestAction('${req.id}', 'Reject', ${req.quantity}, '${req.authUid}', '${req.username}')" 
-                                class="bg-red-500 hover:bg-red-600 text-white text-xs font-semibold py-1 px-3 rounded-lg">Rifiuta</button>
-                    </div>
-                </div>
-            `).join('') : '<p class="text-center text-gray-500 py-4">Nessuna richiesta di puntine in sospeso.</p>';
-
-
-            const html = `
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold text-gray-800">Dashboard Admin</h2>
-                    <button onclick="window.handleLogout()" class="text-sm text-red-500 hover:text-red-700">Logout</button>
-                </div>
-
-                <!-- Statistiche Generali (Conteggio Utenti) -->
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div class="bg-indigo-50 p-4 rounded-lg shadow-inner">
-                        <p class="text-indigo-700 text-sm font-semibold">Utenti Totali:</p>
-                        <p class="text-indigo-900 text-2xl font-bold">${totalUsersCount}</p>
-                    </div>
-                    <div class="bg-red-50 p-4 rounded-lg shadow-inner">
-                        <p class="text-red-700 text-sm font-semibold">Utenti Segnalati:</p>
-                        <p class="text-red-900 text-2xl font-bold">${reportedUsersCount}</p>
-                    </div>
-                </div>
-
-                <div class="bg-red-100 p-4 rounded-lg mb-6">
-                    <h3 class="text-xl font-bold text-red-700 flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                        </svg>
-                        Richieste Pendenti
-                        ${thumbtackRequests.length > 0 ? `<span class="badge badge-pending ml-3">${thumbtackRequests.length}</span>` : ''}
-                    </h3>
-                </div>
-                
-                <div class="border rounded-lg overflow-hidden mb-8">
-                    ${requestsHtml}
-                </div>
-
-                <h3 class="text-xl font-bold text-gray-700 mb-3">Gestione Utenti (Grado, Statistiche e Segnalazioni)</h3>
-                <div class="border rounded-lg overflow-hidden">
-                    ${usersHtml}
-                </div>
-            `;
-            showView(html);
-        };
-
-        const handleRankChange = async (username) => {
-            const user = window.allUsers.find(u => u.username === username);
-            if (!user) return;
-
-            const currentRankIndex = RANKS.indexOf(user.rank);
-            if (currentRankIndex >= RANKS.length - 1) {
-                showMessageBox("Attenzione", "L'utente ha già il grado massimo.", "alert");
-                return;
-            }
-
-            const nextRankIndex = currentRankIndex + 1;
-            const nextRankName = RANKS[nextRankIndex];
-            
-            showMessageBox("Promuovi Utente", `Sei sicuro di voler promuovere ${username} al grado di ${nextRankName}?`, "alert", async () => {
-                showLoader(true);
-                try {
-                    const userRef = doc(getAdminUsersCollection(), username);
-                    await updateDoc(userRef, { rank: nextRankName });
-                    showMessageBox("Successo", `${username} è stato promosso a ${nextRankName}!`, "success");
-                } catch (error) {
-                    console.error("Errore nella promozione del grado:", error);
-                    showMessageBox("Errore", "Impossibile aggiornare il grado.", "error");
-                }
-                showLoader(false);
-            });
-        };
-
-        const handleRequestAction = (requestId, action, quantity, authUid, username) => {
-            const message = action === 'Accept' 
-                ? `Sei sicuro di voler ACCETTARE la richiesta di ${quantity} puntine per ${username}?`
-                : `Sei sicuro di voler RIFIUTARE la richiesta di ${quantity} puntine per ${username}?`;
-
-            showMessageBox(action === 'Accept' ? "Accetta Richiesta" : "Rifiuta Richiesta", message, 'alert', async () => {
-                showLoader(true);
-                try {
-                    await processRequest(requestId, action, quantity, username);
-                    showMessageBox("Successo", `Richiesta di ${username} ${action === 'Accept' ? 'accettata' : 'rifiutata'} con successo.`, "success");
-                } catch (error) {
-                    console.error(`Errore durante l'azione ${action}:`, error);
-                    showMessageBox("Errore", "Impossibile processare la richiesta. Controlla i permessi di scrittura.", "error");
-                }
-                showLoader(false);
-            });
-        };
-
-
-        const processRequest = async (requestId, action, quantity, username) => {
-            const requestRef = doc(getRequestsCollection(), requestId);
-
-            // 1. Update the request status
-            await updateDoc(requestRef, { status: action === 'Accept' ? 'Confirmed' : 'Rejected' });
-
-            if (action === 'Accept') {
-                // 2. Update the user's total thumbtacks using ATOMIC INCREMENT
-                const userRef = doc(getAdminUsersCollection(), username);
-                
-                try {
-                    await updateDoc(userRef, {
-                        totalThumbtacks: increment(quantity),
-                        lastUpdate: new Date().toISOString()
-                    });
-                } catch (error) {
-                    console.error(`Errore nell'incremento puntine per ${username}:`, error);
-                    throw new Error("Impossibile aggiornare il totale puntine dell'utente.");
-                }
-            }
-        };
-
-
-        // --- FIREBASE LISTENERS (REAL-TIME DATA) ---
-
-        let unsubscribeRequests = null;
-        let unsubscribeUsers = null;
-
-        const startListeningForData = () => {
-            if (unsubscribeRequests) unsubscribeRequests();
-            if (unsubscribeUsers) unsubscribeUsers();
-
-            // 1. Listener per le Richieste di Puntine
-            const requestsQuery = query(getRequestsCollection(), orderBy("timestamp", "desc"), limit(100)); 
-
-            unsubscribeRequests = onSnapshot(requestsQuery, (snapshot) => {
-                window.thumbtackRequests = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                console.log("Dati Richieste aggiornati. Numero richieste totali (ultime 100):", window.thumbtackRequests.length);
-
-                // Questo è chiamato solo dopo il login/registrazione/password change.
-                if (isAdmin) {
-                    renderAdminDashboard();
-                } else if (currentUserData) {
-                    renderUserDashboard();
-                }
-            }, (error) => {
-                console.error("Errore nel listener Richieste:", error);
-            });
-
-
-            // 2. Listener per tutti gli Utenti (solo per Admin)
-            if (isAdmin) {
-                const usersQuery = query(getAdminUsersCollection(), orderBy("username", "asc"));
-
-                unsubscribeUsers = onSnapshot(usersQuery, (snapshot) => {
-                    window.allUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    console.log("Dati Utenti aggiornati. Numero utenti totali:", window.allUsers.length);
-                    
-                    renderAdminDashboard();
-                }, (error) => {
-                    console.error("Errore nel listener Utenti Admin:", error);
-                });
-            }
-            
-            // 3. Listener per il singolo Utente
-            if (currentUserData) {
-                const userRef = doc(getAdminUsersCollection(), currentUserData.username);
-                onSnapshot(userRef, (docSnap) => {
-                    if (docSnap.exists()) {
-                        currentUserData = docSnap.data();
-                        console.log("Dati Utente corrente aggiornati.");
-                        if (!isAdmin) {
-                            renderUserDashboard();
-                        }
-                    }
-                }, (error) => {
-                    console.error("Errore nel listener Utente corrente:", error);
-                });
-            }
-        };
-
-        // --- MAIN APPLICATION START ---
-        
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUserId = user.uid;
-                
-                if (!currentUserData) {
-                    renderWelcomeScreen();
-                } else {
-                    if (isAdmin) {
-                        renderAdminDashboard();
-                    } else {
-                        renderUserDashboard();
-                    }
-                }
-                // ⭐ FIX CRITICO: Nascondi il loader una volta che la UI è stata renderizzata
-                showLoader(false);
-
-            } else {
-                initializeAuth();
-            }
-        });
-
-        // Rendi le funzioni disponibili globalmente per gli handler HTML inline
-        window.handleLoginClick = handleLoginClick;
-        window.handleLogout = handleLogout;
-        window.submitThumbtackRequest = submitThumbtackRequest;
-        window.handleRequestAction = handleRequestAction;
-        window.handleRankChange = handleRankChange;
-        window.handleAdminPasswordChange = handleAdminPasswordChange;
-        
-    </script>
-</body>
-</html>
-
+    <div id="app-container" class="card">
+        <h1 class="text-3xl header">Collezione Puntine</h1>
+        <div id="loader" class="text-center text-gray-500 py-8">Connessione a Firebase...</div>
+        <div id="content" class="hidden"></div>
+    </div>
+
+    <!-- *************************************************************** -->
+    <!-- CONFIGURAZIONE FIREBASE (Dati forniti dall'utente) -->
+    <!-- *************************************************************** -->
+    <script>
+        // NON MODIFICARE QUESTA VARIABILE
+        const __app_id = 'thumbtack-collector-v1'; 
+        
+        // CONFIGURAZIONE REALE DEL PROGETTO 'puntine-collector'
+        const firebaseConfig = {
+            apiKey: "AIzaSyA6DwPiwQoRCxEC-lmlYJrchpLqzBEYB5w",
+            authDomain: "puntine-collector.firebaseapp.com",
+            projectId: "puntine-collector",
+            storageBucket: "puntine-collector.firebasestorage.app",
+            messagingSenderId: "709491476433",
+            appId: "1:709491476433:web:cfcfc6d94bc2a5ef41c2f0"
+            // measurementId: "G-4B73CB0RT4" non necessario qui
+        };
+    </script>
+
+    <!-- *************************************************************** -->
+    <!-- SDKs Firebase (USO MODULI MODERN) -->
+    <!-- *************************************************************** -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, query, where, orderBy, limit, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+
+        setLogLevel('Debug'); // Mostra i log di Firestore nella console per il debug
+        
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const config = firebaseConfig; // Usa la configurazione definita nel blocco script precedente
+
+        // --- GLOBAL STATE & FIREBASE SETUP ---
+        const app = initializeApp(config);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        
+        let currentUserId = null;
+        let currentUserData = null;
+        let isAdmin = false;
+
+        // Credenziali hardcoded per il primo login Admin
+        const ADMIN_USERNAME = "florianopu19";
+        const ADMIN_PASSWORD = "1e2r3t";
+
+        const RANKS = [
+            'Non classificato',
+            'Socio anziano',
+            'Vice presidente',
+            'Presidente'
+        ];
+
+        // --- HELPER FUNCTIONS ---
+
+        const getRequestsCollection = () => collection(db, `artifacts/${appId}/public/data/thumbtack_requests`);
+        const getAdminUsersCollection = () => collection(db, `artifacts/${appId}/public/data/all_users_view`); 
+
+        const showView = (html) => {
+            document.getElementById('content').innerHTML = html;
+        };
+        
+        const showLoader = (show) => {
+            document.getElementById('loader').classList.toggle('hidden', !show);
+            document.getElementById('content').classList.toggle('hidden', show);
+        };
+
+
+        // Simple modal implementation (to replace alert/confirm)
+        const showMessageBox = (title, message, type = 'info', confirmCallback = null) => {
+            let color = 'bg-blue-500';
+            if (type === 'success') color = 'bg-green-500';
+            if (type === 'error') color = 'bg-red-500';
+            if (type === 'alert') color = 'bg-yellow-500';
+
+            const container = document.getElementById('app-container');
+            const existingModal = document.getElementById('custom-modal');
+            if (existingModal) existingModal.remove();
+
+            const isConfirmation = confirmCallback !== null;
+            const modalHTML = `
+                <div id="custom-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                    <div class="card max-w-sm">
+                        <div class="flex items-center pb-3 border-b border-gray-200">
+                            <div class="h-2 w-2 ${color} rounded-full mr-3"></div>
+                            <h3 class="text-lg font-bold text-gray-900">${title}</h3>
+                        </div>
+                        <p class="py-4 text-gray-700">${message}</p>
+                        <div class="flex justify-end space-x-3">
+                            ${isConfirmation ? 
+                                `<button id="modal-cancel" class="btn-secondary px-4 py-2">Annulla</button>
+                                <button id="modal-confirm" class="${color.replace('bg-', 'bg-')} text-white px-4 py-2 rounded-lg font-semibold">Conferma</button>`
+                                : 
+                                `<button id="modal-ok" class="btn-primary px-4 py-2">OK</button>`
+                            }
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('afterend', modalHTML);
+
+            const modal = document.getElementById('custom-modal');
+            
+            const close = () => modal.remove();
+
+            if (isConfirmation) {
+                document.getElementById('modal-cancel').onclick = close;
+                document.getElementById('modal-confirm').onclick = () => {
+                    confirmCallback();
+                    close();
+                };
+            } else {
+                document.getElementById('modal-ok').onclick = close;
+            }
+        };
+
+
+        // --- AUTHENTICATION & INITIAL SETUP ---
+
+        const initializeAuth = async () => {
+            showLoader(true);
+            try {
+                // Esegui sempre il sign-in anonimo per ottenere un UID
+                await signInAnonymously(auth); 
+            } catch (error) {
+                console.error("Errore nell'autenticazione iniziale:", error);
+                showMessageBox("Errore Critico", "Impossibile connettersi ai servizi di autenticazione Firebase. Controlla la tua configurazione.", "error");
+            }
+        };
+
+        const handleSignIn = async (username, password, email = '') => { // Accetta l'email come parametro opzionale
+            showLoader(true); // Attiva il loader
+
+            if (!username || !password) {
+                showMessageBox("Attenzione", "Inserisci username e password.", "alert");
+                showLoader(false);
+                return;
+            }
+            
+            // Riferimento al documento utente (ID documento = username)
+            const userRef = doc(getAdminUsersCollection(), username);
+            
+            try {
+                const userSnap = await getDoc(userRef);
+
+                let userData;
+                let isRegistration = false;
+
+                if (userSnap.exists()) {
+                    // 1. Login
+                    userData = userSnap.data();
+
+                    if (userData.password !== password) {
+                        showMessageBox("Errore di accesso", "Password errata per l'utente " + username + ".", "error");
+                        showLoader(false);
+                        return;
+                    }
+
+                    // Se l'UID di autenticazione è cambiato, aggiorna il profilo
+                    if (userData.authUid !== currentUserId) {
+                        await updateDoc(userRef, { authUid: currentUserId });
+                    }
+
+                } else {
+                    // 2. Registration
+                    isRegistration = true;
+                    const isNewAdmin = (username === ADMIN_USERNAME && password === ADMIN_PASSWORD);
+                    const initialRank = isNewAdmin ? 'Presidente' : 'Non classificato';
+                    const initialRole = isNewAdmin ? 'admin' : 'user';
+
+                    if (isNewAdmin) {
+                        showMessageBox("Accesso Admin", `Benvenuto Admin ${username}! Sei loggato come ${initialRank}.`, "success");
+                    } else {
+                        showMessageBox("Registrazione Riuscita", `Benvenuto ${username}! Sei stato registrato con il grado ${initialRank}.`, "success");
+                    }
+
+                    userData = {
+                        username: username,
+                        password: password, 
+                        email: email, // Salva l'email se fornita
+                        authUid: currentUserId,
+                        role: initialRole,
+                        rank: initialRank,
+                        totalThumbtacks: 0,
+                        lastUpdate: new Date().toISOString()
+                    };
+
+                    // Save new user data
+                    await setDoc(userRef, userData);
+                }
+
+                // --- GESTIONE FLUSSO DOPO LOGIN/REGISTRAZIONE ---
+                currentUserData = userData;
+                isAdmin = currentUserData.role === 'admin';
+                
+                // SECURITY CHECK: Se è Admin e sta usando la password predefinita, forzare il cambio.
+                if (isAdmin && currentUserData.password === ADMIN_PASSWORD) {
+                    renderAdminPasswordChangePrompt();
+                    showLoader(false);
+                    return; // Interrompe il flusso, l'accesso alla dashboard avverrà dopo il cambio password.
+                }
+
+                // Avvia i listener di dati
+                startListeningForData();
+
+                // Naviga subito alla dashboard, il listener poi aggiornerà in real-time
+                if (isAdmin) {
+                    renderAdminDashboard();
+                } else {
+                    renderUserDashboard();
+                }
+
+            } catch (error) {
+                console.error("Errore durante il login/registrazione:", error);
+                showMessageBox("Errore di Sistema", "Si è verificato un errore durante l'accesso. Controlla la console.", "error");
+            }
+            showLoader(false); // Disattiva il loader (dovrebbe essere sempre raggiunto)
+        };
+
+        const handleLogout = async () => {
+            try {
+                // Per un'app che usa solo l'autenticazione anonima, ricaricare la pagina 
+                // dopo il logout costringe Firebase a creare una nuova sessione anonima.
+                location.reload(); 
+            } catch (error) {
+                console.error("Logout failed:", error);
+            }
+        };
+
+        // --- UI MANAGEMENT ---
+        
+        const renderWelcomeScreen = () => {
+            const html = `
+                <p class="text-gray-600 text-center mb-6">Benvenuto nel sistema di collezione di puntine!</p>
+                <div id="auth-view">
+                    <div id="login-form">
+                        <input type="text" id="username" placeholder="Username" class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" />
+                        <input type="email" id="email" placeholder="Email (solo per la registrazione, facoltativa)" class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" />
+                        <input type="password" id="password" placeholder="Password" class="w-full p-3 mb-6 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" />
+                        <button onclick="window.handleLoginClick()" class="btn-primary mb-3">Accedi / Registrati</button>
+                        <p class="text-sm text-gray-500 text-center mt-4">
+                            Il tuo ID di sessione (per debug): <code class="text-xs break-words">${currentUserId || 'N/D'}</code>
+                        </p>
+                    </div>
+                </div>
+            `;
+            showView(html);
+        };
+
+        const handleLoginClick = () => {
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            handleSignIn(username, password, email);
+        };
+
+        const renderAdminPasswordChangePrompt = () => {
+            const html = `
+                <div class="bg-yellow-100 p-4 rounded-lg mb-6 border border-yellow-300">
+                    <h2 class="text-xl font-bold text-yellow-800 mb-2">⚠ SICUREZZA CRITICA ⚠</h2>
+                    <p class="text-yellow-700 mb-4">
+                        Stai utilizzando la password Admin predefinita. Per motivi di sicurezza, devi cambiarla per accedere alla Dashboard.
+                    </p>
+                    <input type="password" id="new_password" placeholder="Nuova Password (min 6 caratteri)" class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500" />
+                    <input type="password" id="confirm_password" placeholder="Conferma Nuova Password" class="w-full p-3 mb-6 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500" />
+                    <button onclick="window.handleAdminPasswordChange()" class="btn-primary bg-red-600 hover:bg-red-700">Cambia Password Admin</button>
+                </div>
+            `;
+            showView(html);
+        };
+
+        const handleAdminPasswordChange = async () => {
+            const newPassword = document.getElementById('new_password').value.trim();
+            const confirmPassword = document.getElementById('confirm_password').value.trim();
+            const adminUsername = currentUserData.username;
+
+            if (newPassword.length < 6) {
+                showMessageBox("Attenzione", "La nuova password deve contenere almeno 6 caratteri.", "alert");
+                return;
+            }
+            if (newPassword !== confirmPassword) {
+                showMessageBox("Attenzione", "Le password non corrispondono.", "alert");
+                return;
+            }
+            if (newPassword === ADMIN_PASSWORD) {
+                showMessageBox("Attenzione", "La nuova password non può essere uguale a quella predefinita.", "alert");
+                return;
+            }
+
+            showLoader(true);
+            try {
+                const userRef = doc(getAdminUsersCollection(), adminUsername);
+                await updateDoc(userRef, {
+                    password: newPassword,
+                    lastUpdate: new Date().toISOString()
+                });
+
+                // Update local data
+                currentUserData.password = newPassword; 
+
+                // Continue to dashboard
+                showMessageBox("Successo", "Password Admin aggiornata con successo! Accesso alla Dashboard.", "success", () => {
+                    startListeningForData();
+                    renderAdminDashboard();
+                });
+
+            } catch (error) {
+                console.error("Errore nel cambio password Admin:", error);
+                showMessageBox("Errore di Sistema", "Impossibile aggiornare la password. Controlla la console.", "error");
+            }
+            showLoader(false);
+        };
+
+
+        // --- USER DASHBOARD ---
+
+        const renderUserDashboard = () => {
+            const thumbtackRequests = window.thumbtackRequests || [];
+            
+            // Filtra le richieste dell'utente corrente
+            const userRequests = thumbtackRequests.filter(r => r.authUid === currentUserId);
+
+            // Filtra le richieste in sospeso e la cronologia
+            const userPendingRequests = userRequests.filter(r => r.status === 'Pending');
+            const userHistoryRequests = userRequests.filter(r => r.status !== 'Pending');
+
+
+            let pendingRequestsHTML = '';
+            if (userPendingRequests.length > 0) {
+                pendingRequestsHTML = `
+                    <h3 class="text-lg font-semibold mt-6 mb-3 text-red-600">Richieste in Sospeso</h3>
+                    <div class="border rounded-lg overflow-hidden">
+                    ${userPendingRequests.map(req => `
+                        <div class="list-item bg-red-50/50">
+                            <span>${req.quantity} puntine (${new Date(req.timestamp).toLocaleDateString()})</span>
+                            <span class="badge badge-pending">In attesa</span>
+                        </div>
+                    `).join('')}
+                    </div>
+                `;
+            }
+
+            let historyRequestsHTML = '';
+            if (userHistoryRequests.length > 0) {
+                historyRequestsHTML = `
+                    <h3 class="text-lg font-semibold mt-6 mb-3 text-gray-700">Storico Richieste Recenti</h3>
+                    <div class="border rounded-lg overflow-hidden">
+                    ${userHistoryRequests.map((req, index) => {
+                        const isConfirmed = req.status === 'Confirmed';
+                        const badgeClass = isConfirmed ? 'badge-confirmed' : 'badge-pending';
+                        const badgeText = isConfirmed ? 'Accettata' : 'Rifiutata';
+                        const bgColor = isConfirmed ? 'bg-green-50/50' : 'bg-red-50/50';
+
+                        return `
+                            <div class="list-item ${bgColor}">
+                                <span>${req.quantity} puntine (${new Date(req.timestamp).toLocaleDateString()})</span>
+                                <span class="badge ${badgeClass}">${badgeText}</span>
+                            </div>
+                        `;
+                    }).join('')}
+                    </div>
+                `;
+            }
+
+
+            const html = `
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">${currentUserData.username}</h2>
+                    <button onclick="window.handleLogout()" class="text-sm text-red-500 hover:text-red-700">Logout</button>
+                </div>
+
+                <div class="bg-indigo-50 p-4 rounded-lg mb-6 shadow-inner">
+                    <p class="text-indigo-700 text-sm">Il tuo Grado: <span class="font-bold">${currentUserData.rank}</span></p>
+                    <p class="text-indigo-700 text-sm mt-1">Puntine Totali: <span class="font-bold text-xl">${currentUserData.totalThumbtacks}</span></p>
+                    ${currentUserData.email ? `<p class="text-indigo-700 text-xs mt-1">Email: ${currentUserData.email}</p>` : ''}
+                </div>
+
+                <h3 class="text-lg font-semibold mb-3 text-gray-700">Invia Nuova Richiesta</h3>
+                <div class="p-4 border border-gray-200 rounded-lg">
+                    <label for="thumbtack_count" class="block text-sm font-medium text-gray-700 mb-2">Quante puntine hai collezionato?</label>
+                    <input type="number" id="thumbtack_count" min="1" value="1" class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" />
+                    <button onclick="window.submitThumbtackRequest()" class="btn-primary">Invia per Approvazione</button>
+                </div>
+                
+                ${pendingRequestsHTML}
+                ${historyRequestsHTML}
+            `;
+            showView(html);
+        };
+
+        const submitThumbtackRequest = async () => {
+            const countInput = document.getElementById('thumbtack_count');
+            const quantity = parseInt(countInput.value, 10);
+
+            if (isNaN(quantity) || quantity <= 0) {
+                showMessageBox("Attenzione", "Inserisci una quantità di puntine valida (maggiore di zero).", "alert");
+                return;
+            }
+
+            // Controlla se ci sono richieste in sospeso
+            if (window.thumbtackRequests && window.thumbtackRequests.some(r => r.authUid === currentUserId && r.status === 'Pending')) {
+                showMessageBox("Attenzione", "Hai già una richiesta in sospeso. Attendi l'approvazione dell'Admin.", "alert");
+                return;
+            }
+
+            showLoader(true);
+            try {
+                // Aggiungi la richiesta alla collezione pubblica
+                await addDoc(getRequestsCollection(), {
+                    username: currentUserData.username,
+                    authUid: currentUserId,
+                    quantity: quantity,
+                    status: 'Pending',
+                    timestamp: new Date().toISOString()
+                });
+                countInput.value = '1';
+                showMessageBox("Richiesta Inviata", `Richiesta di ${quantity} puntine inviata con successo all'Admin!`, "success");
+            } catch (error) {
+                console.error("Errore nell'invio della richiesta:", error);
+                showMessageBox("Errore", "Impossibile inviare la richiesta.", "error");
+            }
+            showLoader(false);
+        };
+
+
+        // --- ADMIN DASHBOARD ---
+
+        const renderAdminDashboard = () => {
+            const allUsers = window.allUsers || [];
+            // Mostra solo le richieste in sospeso per l'Admin
+            const thumbtackRequests = (window.thumbtackRequests || []).filter(r => r.status === 'Pending');
+
+            // HTML per la lista degli Utenti e il Rank Management
+            const usersHtml = allUsers.map((user, index) => {
+                const currentRankIndex = RANKS.indexOf(user.rank);
+                const nextRankIndex = currentRankIndex < RANKS.length - 1 ? currentRankIndex + 1 : currentRankIndex;
+                const nextRankName = RANKS[nextRankIndex];
+
+                return `
+                    <div class="list-item ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}">
+                        <div class="flex-1 min-w-0 mr-4">
+                            <p class="font-semibold text-gray-900">${user.username} ${user.username === ADMIN_USERNAME ? '<span class="badge badge-admin ml-2">ADMIN</span>' : ''}</p>
+                            <p class="text-sm text-gray-500">Puntine: ${user.totalThumbtacks} - Grado: ${user.rank}</p>
+                        </div>
+                        
+                        <div class="flex items-center space-x-2">
+                        ${user.username !== ADMIN_USERNAME ? `
+                            <button onclick="window.handleRankChange('${user.username}')" 
+                                    class="text-xs font-semibold py-1 px-3 rounded-full text-white transition-opacity ${RANKS.indexOf(user.rank) < RANKS.length - 1 ? 'bg-indigo-500 hover:bg-indigo-600' : 'bg-green-500 opacity-70 cursor-default'}" 
+                                    ${currentRankIndex === RANKS.length - 1 ? 'disabled' : ''}>
+                                ${currentRankIndex < RANKS.length - 1 ? `Promuovi a ${nextRankName}` : 'Grado Massimo'}
+                            </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // HTML per le Richieste Pendenti
+            const requestsHtml = thumbtackRequests.length > 0 ? thumbtackRequests.map((req, index) => `
+                <div class="list-item ${index % 2 === 0 ? 'bg-red-50' : 'bg-white'}">
+                    <div class="flex-1 min-w-0 mr-4">
+                        <p class="font-semibold text-gray-900">${req.username} richiede ${req.quantity} puntine.</p>
+                        <p class="text-xs text-gray-500">${new Date(req.timestamp).toLocaleString()}</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="window.handleRequestAction('${req.id}', 'Accept', ${req.quantity}, '${req.authUid}', '${req.username}')" 
+                                class="bg-green-500 hover:bg-green-600 text-white text-xs font-semibold py-1 px-3 rounded-lg">Accetta</button>
+                        <button onclick="window.handleRequestAction('${req.id}', 'Reject', ${req.quantity}, '${req.authUid}', '${req.username}')" 
+                                class="bg-red-500 hover:bg-red-600 text-white text-xs font-semibold py-1 px-3 rounded-lg">Rifiuta</button>
+                    </div>
+                </div>
+            `).join('') : '<p class="text-center text-gray-500 py-4">Nessuna richiesta di puntine in sospeso.</p>';
+
+
+            const html = `
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Dashboard Admin</h2>
+                    <button onclick="window.handleLogout()" class="text-sm text-red-500 hover:text-red-700">Logout</button>
+                </div>
+
+                <div class="bg-red-100 p-4 rounded-lg mb-6">
+                    <h3 class="text-xl font-bold text-red-700 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                        Richieste Pendenti
+                        ${thumbtackRequests.length > 0 ? `<span class="badge badge-pending ml-3">${thumbtackRequests.length}</span>` : ''}
+                    </h3>
+                </div>
+                
+                <div class="border rounded-lg overflow-hidden mb-8">
+                    ${requestsHtml}
+                </div>
+
+                <h3 class="text-xl font-bold text-gray-700 mb-3">Gestione Utenti (Grado e Statistiche)</h3>
+                <div class="border rounded-lg overflow-hidden">
+                    ${usersHtml}
+                </div>
+            `;
+            showView(html);
+        };
+
+        const handleRankChange = async (username) => {
+            const user = window.allUsers.find(u => u.username === username);
+            if (!user) return;
+
+            const currentRankIndex = RANKS.indexOf(user.rank);
+            if (currentRankIndex >= RANKS.length - 1) {
+                showMessageBox("Attenzione", "L'utente ha già il grado massimo.", "alert");
+                return;
+            }
+
+            const nextRankIndex = currentRankIndex + 1;
+            const nextRankName = RANKS[nextRankIndex];
+            
+            showMessageBox("Promuovi Utente", `Sei sicuro di voler promuovere ${username} al grado di ${nextRankName}?`, "alert", async () => {
+                showLoader(true);
+                try {
+                    const userRef = doc(getAdminUsersCollection(), username);
+                    await updateDoc(userRef, { rank: nextRankName });
+                    showMessageBox("Successo", `${username} è stato promosso a ${nextRankName}!`, "success");
+                } catch (error) {
+                    console.error("Errore nella promozione del grado:", error);
+                    showMessageBox("Errore", "Impossibile aggiornare il grado.", "error");
+                }
+                showLoader(false);
+            });
+        };
+
+        const handleRequestAction = (requestId, action, quantity, authUid, username) => {
+            const message = action === 'Accept' 
+                ? `Sei sicuro di voler ACCETTARE la richiesta di ${quantity} puntine per ${username}?`
+                : `Sei sicuro di voler RIFIUTARE la richiesta di ${quantity} puntine per ${username}?`;
+
+            showMessageBox(action === 'Accept' ? "Accetta Richiesta" : "Rifiuta Richiesta", message, 'alert', async () => {
+                showLoader(true);
+                try {
+                    await processRequest(requestId, action, quantity, username);
+                    showMessageBox("Successo", `Richiesta di ${username} ${action === 'Accept' ? 'accettata' : 'rifiutata'} con successo.`, "success");
+                } catch (error) {
+                    console.error(`Errore durante l'azione ${action}:`, error);
+                    showMessageBox("Errore", "Impossibile processare la richiesta.", "error");
+                }
+                showLoader(false);
+            });
+        };
+
+
+        const processRequest = async (requestId, action, quantity, username) => {
+            const requestRef = doc(getRequestsCollection(), requestId);
+
+            // 1. Update the request status
+            await updateDoc(requestRef, { status: action === 'Accept' ? 'Confirmed' : 'Rejected' });
+
+            if (action === 'Accept') {
+                // 2. Update the user's total thumbtacks
+                const userRef = doc(getAdminUsersCollection(), username);
+                
+                const userSnap = await getDoc(userRef);
+                if (userSnap.exists()) {
+                    const userData = userSnap.data();
+                    const newTotal = userData.totalThumbtacks + quantity;
+                    
+                    await updateDoc(userRef, {
+                        totalThumbtacks: newTotal
+                    });
+                }
+            }
+    
