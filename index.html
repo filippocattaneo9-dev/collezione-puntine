@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Collezione Puntine</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -100,11 +102,19 @@
         <div id="content" class="hidden"></div>
     </div>
 
-    <script>
-        // NON MODIFICARE QUESTA VARIABILE
-        const __app_id = 'thumbtack-collector-v1';
+    <!-- *************************************************************** -->
+    <!-- SDKs Firebase (USO MODULI MODERN) -->
+    <!-- *************************************************************** -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, query, where, orderBy, limit, addDoc, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+
+        setLogLevel('Debug'); // Mostra i log di Firestore nella console per il debug
         
-        // CONFIGURAZIONE REALE DEL PROGETTO 'puntine-collector'
+        // CONFIGURAZIONE FIREBASE: Definita direttamente qui per evitare problemi di scope
         const firebaseConfig = {
             apiKey: "AIzaSyA6DwPiwQoRCxEC-lmlYJrchpLqzBEYB5w",
             authDomain: "puntine-collector.firebaseapp.com",
@@ -112,25 +122,15 @@
             storageBucket: "puntine-collector.firebasestorage.app",
             messagingSenderId: "709491476433",
             appId: "1:709491476433:web:cfcfc6d94bc2a5ef41c2f0"
-            // measurementId: "G-4B73CB0RT4" non necessario qui
         };
-    </script>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        // 🆕 Aggiunto 'increment' all'importazione
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, query, where, orderBy, limit, addDoc, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-
-        setLogLevel('Debug'); // Mostra i log di Firestore nella console per il debug
         
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const config = firebaseConfig; // Usa la configurazione definita nel blocco script precedente
-
+        // FIX: Accesso sicuro alle variabili globali fornite dall'ambiente tramite window
+        // La variabile __app_id viene fornita dall'ambiente.
+        const appId = typeof window.__app_id !== 'undefined' ? window.__app_id : 'thumbtack-collector-v1';
+        
         // --- GLOBAL STATE & FIREBASE SETUP ---
-        const app = initializeApp(config);
+        // Utilizza firebaseConfig direttamente
+        const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
         
@@ -138,7 +138,6 @@
         let currentUserData = null;
         let isAdmin = false;
 
-        // Credenziali hardcoded per il primo login Admin
         const ADMIN_USERNAME = "florianopu19";
         const ADMIN_PASSWORD = "1e2r3t";
 
@@ -152,7 +151,7 @@
         // --- HELPER FUNCTIONS ---
 
         const getRequestsCollection = () => collection(db, `artifacts/${appId}/public/data/thumbtack_requests`);
-        const getAdminUsersCollection = () => collection(db, `artifacts/${appId}/public/data/all_users_view`); // Riferimento alla collezione utenti
+        const getAdminUsersCollection = () => collection(db, `artifacts/${appId}/public/data/all_users_view`); 
         
         const showView = (html) => {
             document.getElementById('content').innerHTML = html;
@@ -222,12 +221,12 @@
                 await signInAnonymously(auth);
             } catch (error) {
                 console.error("Errore nell'autenticazione iniziale:", error);
-                showMessageBox("Errore Critico", "Impossibile connettersi ai servizi di autenticazione Firebase. Controlla la tua configurazione.", "error");
+                showMessageBox("Errore Critico", "Impossibile connettersi ai servizi di autenticazione Firebase. Controlla la tua configurazione e le regole di sicurezza.", "error");
             }
         };
 
-        const handleSignIn = async (username, password, email = '') => { // Accetta l'email come parametro opzionale
-            showLoader(true); // Attiva il loader
+        const handleSignIn = async (username, password, email = '') => { 
+            showLoader(true); 
 
             if (!username || !password) {
                 showMessageBox("Attenzione", "Inserisci username e password.", "alert");
@@ -235,14 +234,12 @@
                 return;
             }
             
-            // Riferimento al documento utente (ID documento = username)
             const userRef = doc(getAdminUsersCollection(), username);
             
             try {
                 const userSnap = await getDoc(userRef);
 
                 let userData;
-                let isRegistration = false;
 
                 if (userSnap.exists()) {
                     // 1. Login
@@ -254,14 +251,12 @@
                         return;
                     }
 
-                    // Se l'UID di autenticazione è cambiato, aggiorna il profilo
                     if (userData.authUid !== currentUserId) {
                         await updateDoc(userRef, { authUid: currentUserId });
                     }
 
                 } else {
                     // 2. Registration
-                    isRegistration = true;
                     const isNewAdmin = (username === ADMIN_USERNAME && password === ADMIN_PASSWORD);
                     const initialRank = isNewAdmin ? 'Presidente' : 'Non classificato';
                     const initialRole = isNewAdmin ? 'admin' : 'user';
@@ -275,16 +270,15 @@
                     userData = {
                         username: username,
                         password: password, 
-                        email: email, // Salva l'email se fornita
+                        email: email, 
                         authUid: currentUserId,
                         role: initialRole,
                         rank: initialRank,
                         totalThumbtacks: 0,
-                        isReported: false, // 🆕 Nuovo campo per la segnalazione
+                        isReported: false, 
                         lastUpdate: new Date().toISOString()
                     };
 
-                    // Save new user data
                     await setDoc(userRef, userData);
                 }
 
@@ -292,17 +286,14 @@
                 currentUserData = userData;
                 isAdmin = currentUserData.role === 'admin';
                 
-                // SECURITY CHECK: Se è Admin e sta usando la password predefinita, forzare il cambio.
                 if (isAdmin && currentUserData.password === ADMIN_PASSWORD) {
                     renderAdminPasswordChangePrompt();
                     showLoader(false);
-                    return; // Interrompe il flusso, l'accesso alla dashboard avverrà dopo il cambio password.
+                    return; 
                 }
 
-                // Avvia i listener di dati
                 startListeningForData();
 
-                // Naviga subito alla dashboard, il listener poi aggiornerà in real-time
                 if (isAdmin) {
                     renderAdminDashboard();
                 } else {
@@ -311,15 +302,18 @@
 
             } catch (error) {
                 console.error("Errore durante il login/registrazione:", error);
-                showMessageBox("Errore di Sistema", "Si è verificato un errore durante l'accesso. Controlla la console.", "error");
+                // Aggiunto un controllo più specifico sull'errore di Firebase
+                let errorMessage = "Si è verificato un errore durante l'accesso. Controlla la console per i dettagli (es. Permessi Firestore).";
+                if (error.code && error.code.includes('permission-denied')) {
+                     errorMessage = "Errore: Permessi insufficienti (Permission Denied). Controlla le Regole di Sicurezza di Firestore.";
+                }
+                showMessageBox("Errore di Sistema", errorMessage, "error");
             }
-            showLoader(false); // Disattiva il loader (dovrebbe essere sempre raggiunto)
+            showLoader(false); 
         };
 
         const handleLogout = async () => {
             try {
-                // Per un'app che usa solo l'autenticazione anonima, ricaricare la pagina 
-                // dopo il logout costringe Firebase a creare una nuova sessione anonima.
                 location.reload(); 
             } catch (error) {
                 console.error("Logout failed:", error);
@@ -332,15 +326,18 @@
             const html = `
                 <p class="text-gray-600 text-center mb-6">Benvenuto nel sistema di collezione di puntine!</p>
                 <div id="auth-view">
-                    <div id="login-form">
-                        <input type="text" id="username" placeholder="Username" class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" />
-                        <input type="email" id="email" placeholder="Email (solo per la registrazione, facoltativa)" class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" />
-                        <input type="password" id="password" placeholder="Password" class="w-full p-3 mb-6 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" />
-                        <button onclick="window.handleLoginClick()" class="btn-primary mb-3">Accedi / Registrati</button>
-                        <p class="text-sm text-gray-500 text-center mt-4">
-                            Il tuo ID di sessione (per debug): <code class="text-xs break-words">${currentUserId || 'N/D'}</code>
-                        </p>
-                    </div>
+                    <!-- 🛠️ CORREZIONE: Inserito form per risolvere l'avviso console e abilitare il tasto Invio -->
+                    <form onsubmit="event.preventDefault(); window.handleLoginClick();"> 
+                        <div id="login-form">
+                            <input type="text" id="username" placeholder="Username" class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required />
+                            <input type="email" id="email" placeholder="Email (solo per la registrazione, facoltativa)" class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" />
+                            <input type="password" id="password" placeholder="Password" class="w-full p-3 mb-6 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required />
+                            <button type="submit" class="btn-primary mb-3">Accedi / Registrati</button>
+                            <p class="text-sm text-gray-500 text-center mt-4">
+                                Il tuo ID di sessione (per debug): <code class="text-xs break-words">${currentUserId || 'N/D'}</code>
+                            </p>
+                        </div>
+                    </form>
                 </div>
             `;
             showView(html);
@@ -394,10 +391,8 @@
                     lastUpdate: new Date().toISOString()
                 });
 
-                // Update local data
                 currentUserData.password = newPassword; 
 
-                // Continue to dashboard
                 showMessageBox("Successo", "Password Admin aggiornata con successo! Accesso alla Dashboard.", "success", () => {
                     startListeningForData();
                     renderAdminDashboard();
@@ -416,16 +411,13 @@
         const renderUserDashboard = () => {
             const thumbtackRequests = window.thumbtackRequests || [];
             
-            // Filtra le richieste dell'utente corrente
             const userRequests = thumbtackRequests.filter(r => r.authUid === currentUserId);
 
-            // Filtra le richieste in sospeso e la cronologia
             const userPendingRequests = userRequests.filter(r => r.status === 'Pending');
-            // Ordina per data decrescente e limita gli elementi della cronologia
             const userHistoryRequests = userRequests
                 .filter(r => r.status !== 'Pending')
                 .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-                .slice(0, 5); // Mostra solo le ultime 5 richieste
+                .slice(0, 5); 
 
             let pendingRequestsHTML = '';
             if (userPendingRequests.length > 0) {
@@ -499,7 +491,6 @@
                 return;
             }
 
-            // Controlla se ci sono richieste in sospeso
             if (window.thumbtackRequests && window.thumbtackRequests.some(r => r.authUid === currentUserId && r.status === 'Pending')) {
                 showMessageBox("Attenzione", "Hai già una richiesta in sospeso. Attendi l'approvazione dell'Admin.", "alert");
                 return;
@@ -507,7 +498,6 @@
 
             showLoader(true);
             try {
-                // Aggiungi la richiesta alla collezione pubblica
                 await addDoc(getRequestsCollection(), {
                     username: currentUserData.username,
                     authUid: currentUserId,
@@ -519,7 +509,7 @@
                 showMessageBox("Richiesta Inviata", `Richiesta di ${quantity} puntine inviata con successo all'Admin!`, "success");
             } catch (error) {
                 console.error("Errore nell'invio della richiesta:", error);
-                showMessageBox("Errore", "Impossibile inviare la richiesta.", "error");
+                showMessageBox("Errore", "Impossibile inviare la richiesta. Controlla i permessi di scrittura.", "error");
             }
             showLoader(false);
         };
@@ -527,14 +517,12 @@
 
         // --- ADMIN DASHBOARD ---
 
-        // 🆕 Aggiunta la gestione della segnalazione utente
         const handleReportUser = async (username) => {
             const user = window.allUsers.find(u => u.username === username);
             if (!user) return;
 
             const newReportStatus = !user.isReported;
             
-            // Messaggio di conferma dinamico
             const actionText = newReportStatus ? 'segnalare' : 'rimuovere la segnalazione da';
             const statusText = newReportStatus ? 'Segnalato' : 'Segnalazione rimossa';
             const color = newReportStatus ? 'error' : 'success';
@@ -556,27 +544,22 @@
                 showLoader(false);
             });
         };
-        // Rendi la funzione disponibile globalmente
         window.handleReportUser = handleReportUser;
 
 
         const renderAdminDashboard = () => {
             const allUsers = window.allUsers || [];
-            // 🆕 Statistiche Utenti
             const totalUsersCount = allUsers.length; 
             const reportedUsersCount = allUsers.filter(u => u.isReported).length; 
 
-            // Mostra solo le richieste in sospeso per l'Admin
             const thumbtackRequests = (window.thumbtackRequests || []).filter(r => r.status === 'Pending');
 
-            // HTML per la lista degli Utenti e il Rank Management
             const usersHtml = allUsers.map((user, index) => {
                 const currentRankIndex = RANKS.indexOf(user.rank);
                 const nextRankIndex = currentRankIndex < RANKS.length - 1 ? currentRankIndex + 1 : currentRankIndex;
                 const nextRankName = RANKS[nextRankIndex];
                 
-                // 🆕 Logica e classi per la Segnalazione
-                const isReported = !!user.isReported; // Assicura che sia un booleano
+                const isReported = !!user.isReported; 
                 const reportButtonClass = isReported ? 'bg-gray-500 hover:bg-gray-600' : 'bg-red-500 hover:bg-red-600';
                 const reportButtonText = isReported ? 'Rimuovi Segnalazione' : 'Segnala Utente';
                 const reportBadgeHtml = isReported ? '<span class="badge bg-red-100 text-red-800 ml-2">SEGNALATO</span>' : '';
@@ -587,7 +570,8 @@
                         <div class="flex-1 min-w-0 mr-4">
                             <p class="font-semibold text-gray-900">${user.username} 
                                 ${user.username === ADMIN_USERNAME ? '<span class="badge badge-admin ml-2">ADMIN</span>' : ''}
-                                ${reportBadgeHtml} </p>
+                                ${reportBadgeHtml} 
+                            </p>
                             <p class="text-sm text-gray-500">Puntine: ${user.totalThumbtacks} - Grado: ${user.rank}</p>
                         </div>
                         
@@ -610,7 +594,6 @@
                 `;
             }).join('');
 
-            // HTML per le Richieste Pendenti
             const requestsHtml = thumbtackRequests.length > 0 ? thumbtackRequests.map((req, index) => `
                 <div class="list-item ${index % 2 === 0 ? 'bg-red-50' : 'bg-white'}">
                     <div class="flex-1 min-w-0 mr-4">
@@ -633,6 +616,7 @@
                     <button onclick="window.handleLogout()" class="text-sm text-red-500 hover:text-red-700">Logout</button>
                 </div>
 
+                <!-- Statistiche Generali (Conteggio Utenti) -->
                 <div class="grid grid-cols-2 gap-4 mb-6">
                     <div class="bg-indigo-50 p-4 rounded-lg shadow-inner">
                         <p class="text-indigo-700 text-sm font-semibold">Utenti Totali:</p>
@@ -705,7 +689,7 @@
                     showMessageBox("Successo", `Richiesta di ${username} ${action === 'Accept' ? 'accettata' : 'rifiutata'} con successo.`, "success");
                 } catch (error) {
                     console.error(`Errore durante l'azione ${action}:`, error);
-                    showMessageBox("Errore", "Impossibile processare la richiesta.", "error");
+                    showMessageBox("Errore", "Impossibile processare la richiesta. Controlla i permessi di scrittura.", "error");
                 }
                 showLoader(false);
             });
@@ -723,7 +707,6 @@
                 const userRef = doc(getAdminUsersCollection(), username);
                 
                 try {
-                    // Utilizza increment() per aggiornare in modo sicuro il contatore (operazione atomica)
                     await updateDoc(userRef, {
                         totalThumbtacks: increment(quantity),
                         lastUpdate: new Date().toISOString()
@@ -742,18 +725,17 @@
         let unsubscribeUsers = null;
 
         const startListeningForData = () => {
-            // Stop previous listeners if any
             if (unsubscribeRequests) unsubscribeRequests();
             if (unsubscribeUsers) unsubscribeUsers();
 
-            // 1. Listener per le Richieste di Puntine (per Admin e Utente)
-            const requestsQuery = query(getRequestsCollection(), orderBy("timestamp", "desc"), limit(100)); // Ultimi 100
+            // 1. Listener per le Richieste di Puntine
+            const requestsQuery = query(getRequestsCollection(), orderBy("timestamp", "desc"), limit(100)); 
 
             unsubscribeRequests = onSnapshot(requestsQuery, (snapshot) => {
                 window.thumbtackRequests = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 console.log("Dati Richieste aggiornati. Numero richieste totali (ultime 100):", window.thumbtackRequests.length);
 
-                // Ricarica la dashboard per riflettere i cambiamenti
+                // Questo è chiamato solo dopo il login/registrazione/password change.
                 if (isAdmin) {
                     renderAdminDashboard();
                 } else if (currentUserData) {
@@ -772,22 +754,19 @@
                     window.allUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     console.log("Dati Utenti aggiornati. Numero utenti totali:", window.allUsers.length);
                     
-                    // Ricarica la dashboard Admin
                     renderAdminDashboard();
                 }, (error) => {
                     console.error("Errore nel listener Utenti Admin:", error);
                 });
             }
             
-            // 3. Listener per il singolo Utente (per aggiornare i dati di rank/totale in tempo reale)
+            // 3. Listener per il singolo Utente
             if (currentUserData) {
                 const userRef = doc(getAdminUsersCollection(), currentUserData.username);
-                // Non uso unsubscribeUsers in modo che l'Admin possa avere un listener generale
                 onSnapshot(userRef, (docSnap) => {
                     if (docSnap.exists()) {
                         currentUserData = docSnap.data();
                         console.log("Dati Utente corrente aggiornati.");
-                        // Ricarica la dashboard per riflettere i cambiamenti di rank/puntine
                         if (!isAdmin) {
                             renderUserDashboard();
                         }
@@ -800,25 +779,23 @@
 
         // --- MAIN APPLICATION START ---
         
-        // Questo listener gestisce la prima fase di autenticazione anonima
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUserId = user.uid;
                 
                 if (!currentUserData) {
-                    // Se l'utente non è ancora loggato/registrato, mostra la schermata di benvenuto
                     renderWelcomeScreen();
                 } else {
-                    // Se l'utente è già loggato (ad esempio dopo il cambio password admin), continua
-                    // startListeningForData() è già chiamato in handleSignIn
                     if (isAdmin) {
                         renderAdminDashboard();
                     } else {
                         renderUserDashboard();
                     }
                 }
+                // ⭐ FIX CRITICO: Nascondi il loader una volta che la UI è stata renderizzata
+                showLoader(false);
+
             } else {
-                // User è signed out (e anonimo), riavvia il processo
                 initializeAuth();
             }
         });
@@ -834,3 +811,4 @@
     </script>
 </body>
 </html>
+
