@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Collezione Puntine</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -102,12 +100,9 @@
         <div id="content" class="hidden"></div>
     </div>
 
-    <!-- *************************************************************** -->
-    <!-- CONFIGURAZIONE FIREBASE (Dati forniti dall'utente) -->
-    <!-- *************************************************************** -->
     <script>
         // NON MODIFICARE QUESTA VARIABILE
-        const __app_id = 'thumbtack-collector-v1'; 
+        const __app_id = 'thumbtack-collector-v1';
         
         // CONFIGURAZIONE REALE DEL PROGETTO 'puntine-collector'
         const firebaseConfig = {
@@ -121,13 +116,11 @@
         };
     </script>
 
-    <!-- *************************************************************** -->
-    <!-- SDKs Firebase (USO MODULI MODERN) -->
-    <!-- *************************************************************** -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, query, where, orderBy, limit, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // 🆕 Aggiunto 'increment' all'importazione
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, query, where, orderBy, limit, addDoc, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 
@@ -159,8 +152,8 @@
         // --- HELPER FUNCTIONS ---
 
         const getRequestsCollection = () => collection(db, `artifacts/${appId}/public/data/thumbtack_requests`);
-        const getAdminUsersCollection = () => collection(db, `artifacts/${appId}/public/data/all_users_view`); 
-
+        const getAdminUsersCollection = () => collection(db, `artifacts/${appId}/public/data/all_users_view`); // Riferimento alla collezione utenti
+        
         const showView = (html) => {
             document.getElementById('content').innerHTML = html;
         };
@@ -226,7 +219,7 @@
             showLoader(true);
             try {
                 // Esegui sempre il sign-in anonimo per ottenere un UID
-                await signInAnonymously(auth); 
+                await signInAnonymously(auth);
             } catch (error) {
                 console.error("Errore nell'autenticazione iniziale:", error);
                 showMessageBox("Errore Critico", "Impossibile connettersi ai servizi di autenticazione Firebase. Controlla la tua configurazione.", "error");
@@ -287,6 +280,7 @@
                         role: initialRole,
                         rank: initialRank,
                         totalThumbtacks: 0,
+                        isReported: false, // 🆕 Nuovo campo per la segnalazione
                         lastUpdate: new Date().toISOString()
                     };
 
@@ -427,8 +421,11 @@
 
             // Filtra le richieste in sospeso e la cronologia
             const userPendingRequests = userRequests.filter(r => r.status === 'Pending');
-            const userHistoryRequests = userRequests.filter(r => r.status !== 'Pending');
-
+            // Ordina per data decrescente e limita gli elementi della cronologia
+            const userHistoryRequests = userRequests
+                .filter(r => r.status !== 'Pending')
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                .slice(0, 5); // Mostra solo le ultime 5 richieste
 
             let pendingRequestsHTML = '';
             if (userPendingRequests.length > 0) {
@@ -448,7 +445,7 @@
             let historyRequestsHTML = '';
             if (userHistoryRequests.length > 0) {
                 historyRequestsHTML = `
-                    <h3 class="text-lg font-semibold mt-6 mb-3 text-gray-700">Storico Richieste Recenti</h3>
+                    <h3 class="text-lg font-semibold mt-6 mb-3 text-gray-700">Storico Richieste Recenti (Ultimi ${userHistoryRequests.length})</h3>
                     <div class="border rounded-lg overflow-hidden">
                     ${userHistoryRequests.map((req, index) => {
                         const isConfirmed = req.status === 'Confirmed';
@@ -530,8 +527,45 @@
 
         // --- ADMIN DASHBOARD ---
 
+        // 🆕 Aggiunta la gestione della segnalazione utente
+        const handleReportUser = async (username) => {
+            const user = window.allUsers.find(u => u.username === username);
+            if (!user) return;
+
+            const newReportStatus = !user.isReported;
+            
+            // Messaggio di conferma dinamico
+            const actionText = newReportStatus ? 'segnalare' : 'rimuovere la segnalazione da';
+            const statusText = newReportStatus ? 'Segnalato' : 'Segnalazione rimossa';
+            const color = newReportStatus ? 'error' : 'success';
+
+            showMessageBox("Gestione Segnalazione", 
+                `Sei sicuro di voler ${actionText} l'utente **${username}**?`, 
+                color, 
+                async () => {
+                showLoader(true);
+                try {
+                    const userRef = doc(getAdminUsersCollection(), username);
+                    await updateDoc(userRef, { isReported: newReportStatus });
+                    
+                    showMessageBox("Successo", `Utente ${username}: ${statusText}.`, "success");
+                } catch (error) {
+                    console.error("Errore nella gestione della segnalazione:", error);
+                    showMessageBox("Errore", "Impossibile aggiornare lo stato di segnalazione.", "error");
+                }
+                showLoader(false);
+            });
+        };
+        // Rendi la funzione disponibile globalmente
+        window.handleReportUser = handleReportUser;
+
+
         const renderAdminDashboard = () => {
             const allUsers = window.allUsers || [];
+            // 🆕 Statistiche Utenti
+            const totalUsersCount = allUsers.length; 
+            const reportedUsersCount = allUsers.filter(u => u.isReported).length; 
+
             // Mostra solo le richieste in sospeso per l'Admin
             const thumbtackRequests = (window.thumbtackRequests || []).filter(r => r.status === 'Pending');
 
@@ -540,21 +574,36 @@
                 const currentRankIndex = RANKS.indexOf(user.rank);
                 const nextRankIndex = currentRankIndex < RANKS.length - 1 ? currentRankIndex + 1 : currentRankIndex;
                 const nextRankName = RANKS[nextRankIndex];
+                
+                // 🆕 Logica e classi per la Segnalazione
+                const isReported = !!user.isReported; // Assicura che sia un booleano
+                const reportButtonClass = isReported ? 'bg-gray-500 hover:bg-gray-600' : 'bg-red-500 hover:bg-red-600';
+                const reportButtonText = isReported ? 'Rimuovi Segnalazione' : 'Segnala Utente';
+                const reportBadgeHtml = isReported ? '<span class="badge bg-red-100 text-red-800 ml-2">SEGNALATO</span>' : '';
+
 
                 return `
                     <div class="list-item ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}">
                         <div class="flex-1 min-w-0 mr-4">
-                            <p class="font-semibold text-gray-900">${user.username} ${user.username === ADMIN_USERNAME ? '<span class="badge badge-admin ml-2">ADMIN</span>' : ''}</p>
+                            <p class="font-semibold text-gray-900">${user.username} 
+                                ${user.username === ADMIN_USERNAME ? '<span class="badge badge-admin ml-2">ADMIN</span>' : ''}
+                                ${reportBadgeHtml} </p>
                             <p class="text-sm text-gray-500">Puntine: ${user.totalThumbtacks} - Grado: ${user.rank}</p>
                         </div>
                         
                         <div class="flex items-center space-x-2">
-                        ${user.username !== ADMIN_USERNAME ? `
-                            <button onclick="window.handleRankChange('${user.username}')" 
-                                    class="text-xs font-semibold py-1 px-3 rounded-full text-white transition-opacity ${RANKS.indexOf(user.rank) < RANKS.length - 1 ? 'bg-indigo-500 hover:bg-indigo-600' : 'bg-green-500 opacity-70 cursor-default'}" 
-                                    ${currentRankIndex === RANKS.length - 1 ? 'disabled' : ''}>
-                                ${currentRankIndex < RANKS.length - 1 ? `Promuovi a ${nextRankName}` : 'Grado Massimo'}
-                            </button>
+                            ${user.username !== ADMIN_USERNAME ? `
+                                <button onclick="window.handleReportUser('${user.username}')" 
+                                        class="${reportButtonClass} text-white text-xs font-semibold py-1 px-3 rounded-lg transition-colors">
+                                    ${reportButtonText}
+                                </button>
+                                
+                                <button onclick="window.handleRankChange('${user.username}')" 
+                                        class="text-xs font-semibold py-1 px-3 rounded-full text-white transition-opacity 
+                                        ${RANKS.indexOf(user.rank) < RANKS.length - 1 ? 'bg-indigo-500 hover:bg-indigo-600' : 'bg-green-500 opacity-70 cursor-default'}" 
+                                        ${currentRankIndex === RANKS.length - 1 ? 'disabled' : ''}>
+                                    ${currentRankIndex < RANKS.length - 1 ? `Promuovi a ${nextRankName}` : 'Grado Massimo'}
+                                </button>
                             ` : ''}
                         </div>
                     </div>
@@ -584,6 +633,17 @@
                     <button onclick="window.handleLogout()" class="text-sm text-red-500 hover:text-red-700">Logout</button>
                 </div>
 
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-indigo-50 p-4 rounded-lg shadow-inner">
+                        <p class="text-indigo-700 text-sm font-semibold">Utenti Totali:</p>
+                        <p class="text-indigo-900 text-2xl font-bold">${totalUsersCount}</p>
+                    </div>
+                    <div class="bg-red-50 p-4 rounded-lg shadow-inner">
+                        <p class="text-red-700 text-sm font-semibold">Utenti Segnalati:</p>
+                        <p class="text-red-900 text-2xl font-bold">${reportedUsersCount}</p>
+                    </div>
+                </div>
+
                 <div class="bg-red-100 p-4 rounded-lg mb-6">
                     <h3 class="text-xl font-bold text-red-700 flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -598,7 +658,7 @@
                     ${requestsHtml}
                 </div>
 
-                <h3 class="text-xl font-bold text-gray-700 mb-3">Gestione Utenti (Grado e Statistiche)</h3>
+                <h3 class="text-xl font-bold text-gray-700 mb-3">Gestione Utenti (Grado, Statistiche e Segnalazioni)</h3>
                 <div class="border rounded-lg overflow-hidden">
                     ${usersHtml}
                 </div>
@@ -659,121 +719,118 @@
             await updateDoc(requestRef, { status: action === 'Accept' ? 'Confirmed' : 'Rejected' });
 
             if (action === 'Accept') {
-                // 2. Update the user's total thumbtacks
+                // 2. Update the user's total thumbtacks using ATOMIC INCREMENT
                 const userRef = doc(getAdminUsersCollection(), username);
                 
-                const userSnap = await getDoc(userRef);
-                if (userSnap.exists()) {
-                    const userData = userSnap.data();
-                    const newTotal = userData.totalThumbtacks + quantity;
-                    
+                try {
+                    // Utilizza increment() per aggiornare in modo sicuro il contatore (operazione atomica)
                     await updateDoc(userRef, {
-                        totalThumbtacks: newTotal
+                        totalThumbtacks: increment(quantity),
+                        lastUpdate: new Date().toISOString()
                     });
+                } catch (error) {
+                    console.error(`Errore nell'incremento puntine per ${username}:`, error);
+                    throw new Error("Impossibile aggiornare il totale puntine dell'utente.");
                 }
             }
         };
 
 
-        // --- REAL-TIME DATA LISTENERS ---
+        // --- FIREBASE LISTENERS (REAL-TIME DATA) ---
+
+        let unsubscribeRequests = null;
+        let unsubscribeUsers = null;
 
         const startListeningForData = () => {
-            if (isAdmin) {
-                // 1. All Users (for ranking/stats)
-                const qUsers = getAdminUsersCollection();
-                onSnapshot(qUsers, (snapshot) => {
-                    let users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    users.sort((a, b) => b.totalThumbtacks - a.totalThumbtacks); 
-                    
-                    window.allUsers = users;
-                    // Aggiorna la dashboard solo se l'admin è sulla dashboard (non è nella schermata di login)
-                    if (document.getElementById('content').innerHTML.includes('Dashboard Admin')) {
-                         renderAdminDashboard();
-                    }
-                   
-                }, (error) => console.error("Errore nel listener Utenti:", error));
+            // Stop previous listeners if any
+            if (unsubscribeRequests) unsubscribeRequests();
+            if (unsubscribeUsers) unsubscribeUsers();
 
-                // 2. All Requests (per l'admin sono necessarie tutte per la gestione)
-                const qRequests = query(getRequestsCollection(), orderBy("timestamp", "desc"));
-                onSnapshot(qRequests, (snapshot) => {
-                    window.thumbtackRequests = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
-                    // Aggiorna la dashboard solo se l'admin è sulla dashboard
-                    if (document.getElementById('content').innerHTML.includes('Dashboard Admin')) {
-                        renderAdminDashboard();
-                    }
-                }, (error) => console.error("Errore nel listener Richieste:", error));
-                
-            } else {
-                // Regular user 
-                
-                // 1. User Profile
-                const userProfileRef = doc(getAdminUsersCollection(), currentUserData.username);
-                onSnapshot(userProfileRef, (docSnap) => {
+            // 1. Listener per le Richieste di Puntine (per Admin e Utente)
+            const requestsQuery = query(getRequestsCollection(), orderBy("timestamp", "desc"), limit(100)); // Ultimi 100
+
+            unsubscribeRequests = onSnapshot(requestsQuery, (snapshot) => {
+                window.thumbtackRequests = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                console.log("Dati Richieste aggiornati. Numero richieste totali (ultime 100):", window.thumbtackRequests.length);
+
+                // Ricarica la dashboard per riflettere i cambiamenti
+                if (isAdmin) {
+                    renderAdminDashboard();
+                } else if (currentUserData) {
+                    renderUserDashboard();
+                }
+            }, (error) => {
+                console.error("Errore nel listener Richieste:", error);
+            });
+
+
+            // 2. Listener per tutti gli Utenti (solo per Admin)
+            if (isAdmin) {
+                const usersQuery = query(getAdminUsersCollection(), orderBy("username", "asc"));
+
+                unsubscribeUsers = onSnapshot(usersQuery, (snapshot) => {
+                    window.allUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    console.log("Dati Utenti aggiornati. Numero utenti totali:", window.allUsers.length);
+                    
+                    // Ricarica la dashboard Admin
+                    renderAdminDashboard();
+                }, (error) => {
+                    console.error("Errore nel listener Utenti Admin:", error);
+                });
+            }
+            
+            // 3. Listener per il singolo Utente (per aggiornare i dati di rank/totale in tempo reale)
+            if (currentUserData) {
+                const userRef = doc(getAdminUsersCollection(), currentUserData.username);
+                // Non uso unsubscribeUsers in modo che l'Admin possa avere un listener generale
+                onSnapshot(userRef, (docSnap) => {
                     if (docSnap.exists()) {
                         currentUserData = docSnap.data();
-                        // Aggiorna la dashboard solo se l'utente è loggato
-                        if (document.getElementById('content').innerHTML.includes('Puntine Totali')) {
+                        console.log("Dati Utente corrente aggiornati.");
+                        // Ricarica la dashboard per riflettere i cambiamenti di rank/puntine
+                        if (!isAdmin) {
                             renderUserDashboard();
                         }
-                    } else {
-                        showMessageBox("Errore", "Il tuo profilo è stato eliminato. Disconnessione forzata.", "error");
-                        handleLogout();
                     }
-                }, (error) => console.error("Errore nel listener Profilo Utente:", error));
-
-                // 2. User Requests (Recenti)
-                const qUserRequests = query(
-                    getRequestsCollection(),
-                    where("authUid", "==", currentUserId),
-                    orderBy("timestamp", "desc"),
-                    limit(10) // Limita alle ultime 10 richieste
-                ); 
-
-                onSnapshot(qUserRequests, (snapshot) => {
-                    window.thumbtackRequests = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
-                    // Aggiorna la dashboard solo se l'utente è loggato
-                    if (document.getElementById('content').innerHTML.includes('Puntine Totali')) {
-                        renderUserDashboard();
-                    }
-                }, (error) => console.error("Errore nel listener Richieste Utente:", error));
+                }, (error) => {
+                    console.error("Errore nel listener Utente corrente:", error);
+                });
             }
         };
 
-        // --- MAIN APPLICATION FLOW ---
-
+        // --- MAIN APPLICATION START ---
+        
+        // Questo listener gestisce la prima fase di autenticazione anonima
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUserId = user.uid;
-
-                // Se currentUserData è già stato impostato (durante il login/registrazione)
-                if (currentUserData) {
-                    // Non fare nulla qui. La funzione handleSignIn ha già chiamato startListeningForData() 
-                    // o renderAdminPasswordChangePrompt() per cambiare la vista.
-                    
-                } else {
-                    // Sign-in anonimo completato (solo al primo caricamento), mostra la schermata di benvenuto
-                    showLoader(false);
+                
+                if (!currentUserData) {
+                    // Se l'utente non è ancora loggato/registrato, mostra la schermata di benvenuto
                     renderWelcomeScreen();
+                } else {
+                    // Se l'utente è già loggato (ad esempio dopo il cambio password admin), continua
+                    // startListeningForData() è già chiamato in handleSignIn
+                    if (isAdmin) {
+                        renderAdminDashboard();
+                    } else {
+                        renderUserDashboard();
+                    }
                 }
             } else {
-                // Nessun utente (non dovrebbe accadere dopo il sign-in anonimo)
-                showLoader(false);
-                renderWelcomeScreen();
+                // User è signed out (e anonimo), riavvia il processo
+                initializeAuth();
             }
         });
 
-        // Start the process
-        initializeAuth();
-        
-        // --- EXPOSE GLOBAL FUNCTIONS FOR HTML ONCLICK HANDLERS ---
-        window.handleLogout = handleLogout;
+        // Rendi le funzioni disponibili globalmente per gli handler HTML inline
         window.handleLoginClick = handleLoginClick;
+        window.handleLogout = handleLogout;
         window.submitThumbtackRequest = submitThumbtackRequest;
-        window.handleRankChange = handleRankChange;
         window.handleRequestAction = handleRequestAction;
+        window.handleRankChange = handleRankChange;
         window.handleAdminPasswordChange = handleAdminPasswordChange;
         
     </script>
 </body>
 </html>
-
